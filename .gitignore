@@ -1,0 +1,5 @@
+/.vscode
+/Sharponi/.vs
+/Sharponi/obj
+/Sharponi/bin
+config.json
