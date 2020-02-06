@@ -31,20 +31,6 @@ namespace Sharponi.Modules
             await ReplyAsync(sb.ToString());
         }
 
-        
-        
-        [Command("help")]
-        public async Task HelpCommand()
-        {
-            // initialize empty string builder for reply
-            var sb = new StringBuilder();
-
-
-            
-            // send simple string reply
-            await ReplyAsync(sb.ToString());
-        }
-
         [Command("8ball")]
         [Alias("ask")]
         [RequireUserPermission(GuildPermission.KickMembers)]

@@ -27,7 +27,7 @@ namespace Sharponi
             // create the configuration
             var _builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(path: "config.json");  
+                .AddJsonFile(path: "config.json");
 
             // build the configuration and assign to _config          
             _config = _builder.Build();
@@ -53,7 +53,7 @@ namespace Sharponi
                 await client.StartAsync();
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
-                await services.GetRequiredService<CommandHandler>().InitializeAsync();
+                await services.GetRequiredService<CommandHandler>().Init();
 
                 await Task.Delay(-1);
             }
@@ -79,9 +79,16 @@ namespace Sharponi
             // using csharpi.Services;
             // the config we build is also added, which comes in handy for setting the command prefix!
             return new ServiceCollection()
-                .AddSingleton(_config)
-                .AddSingleton<DiscordSocketClient>()
-                .AddSingleton<CommandService>()
+                .AddSingleton(_config).AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
+                {                                       // Add discord to the collection
+                    LogLevel = LogSeverity.Verbose,     // Tell the logger to give Verbose amount of info
+                    MessageCacheSize = 1000             // Cache 1,000 messages per channel
+                }))
+                .AddSingleton(new CommandService(new CommandServiceConfig
+                {                                       // Add the command service to the collection
+                    LogLevel = LogSeverity.Verbose,     // Tell the logger to give Verbose amount of info
+                    DefaultRunMode = RunMode.Async,     // Force all commands to run async by default
+                }))
                 .AddSingleton<CommandHandler>()
                 .BuildServiceProvider();
         }
