@@ -11,8 +11,11 @@ namespace Sharponi.Modules
         [Command("say"), Alias("s")]
         [Summary("Make the bot say something")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public Task Say([Remainder]string text)
-            => ReplyAsync(text);
+        public async Task Say([Remainder]string text)
+        {
+            await Context.Channel.DeleteMessageAsync(Context.Message);
+            await Context.Channel.SendMessageAsync(text);
+        }
 
         [Group("set"), Name("Example")]
         [RequireContext(ContextType.Guild)]
