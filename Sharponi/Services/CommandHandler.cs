@@ -64,7 +64,8 @@ namespace Sharponi.Services
 
                     if (!result.IsSuccess) // If not successful, reply with the error.
                     {
-                        await context.Channel.SendMessageAsync("I do not have this command! please try again");
+                        logger.LogDebug("a command was misspelled in message: "+msg.Content);
+                     //   await context.Channel.SendMessageAsync("I do not have this command! please try again");
                     }
                 }
                 else
