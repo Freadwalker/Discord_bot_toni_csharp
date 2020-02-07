@@ -14,27 +14,27 @@ namespace Sharponi.Modules
     [Summary("Contains the Help commands")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private readonly CommandService _service;
-        private readonly IConfiguration _config;
+        private readonly CommandService service;
+        private readonly IConfiguration config;
 
         public HelpModule(CommandService service, IConfiguration config)
         {
-            _service = service;
-            _config = config;
+            this.service = service;
+            this.config = config;
         }
 
         [Command("help")]
         [Summary("Show the complete help.")]
         public async Task HelpAsync()
         {
-            string prefix = _config["prefix"];
+            string prefix = config["prefix"];
             var builder = new EmbedBuilder()
             {
                 Color = new Color(114, 137, 218),
                 Description = "These are the commands you can use"
             };
 
-            foreach (var module in _service.Modules)
+            foreach (var module in service.Modules)
             {
                 if(module.Attributes.Any(i => i is HiddenHelpAttribute))
                 {
@@ -51,7 +51,9 @@ namespace Sharponi.Modules
 
                     var result = await cmd.CheckPreconditionsAsync(Context);
                     if (result.IsSuccess)
+                    {
                         description += $"{prefix}{cmd.Aliases.First()}\n";
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(description))
@@ -71,7 +73,7 @@ namespace Sharponi.Modules
         [Command("help")]
         public async Task HelpAsync(string command)
         {
-            var result = _service.Search(Context, command);
+            var result = service.Search(Context, command);
 
             if (!result.IsSuccess)
             {
@@ -79,7 +81,6 @@ namespace Sharponi.Modules
                 return;
             }
 
-            string prefix = _config["prefix"];
             var builder = new EmbedBuilder()
             {
                 Color = new Color(114, 137, 218),

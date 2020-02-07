@@ -11,7 +11,7 @@ namespace Sharponi.Modules.HiddenCommands
     [HiddenCommand]
     interface IHiddenCommand
     {
-        bool FulfillsCondition(SocketUserMessage msg, SocketCommandContext context);
-        Task Execute(SocketUserMessage msg, SocketCommandContext context);
+        bool FulfillsCondition(SocketUserMessage msg, SocketCommandContext context, IServiceProvider provider);
+        Task Execute(SocketUserMessage msg, SocketCommandContext context, IServiceProvider provider);
     }
 }

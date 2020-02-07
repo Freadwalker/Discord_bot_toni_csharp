@@ -11,12 +11,12 @@ namespace Sharponi.Modules
     [Summary("Talking to the bot")]
     public class BasicResponseCommands : ModuleBase<SocketCommandContext>
     {
-        [Command("say"), Alias("s")]
+        [Command("say")][Alias("s")]
         [Summary("Make the bot say something")]
         public async Task Say([Remainder]string text)
         {
-            await Context.Channel.DeleteMessageAsync(Context.Message);
             await Context.Channel.SendMessageAsync(text);
+            await Context.Message.DeleteAsync();
         }
 
         [Command("8ball")]

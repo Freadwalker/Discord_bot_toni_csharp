@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Sharponi.Modules.HiddenCommands;
@@ -11,21 +12,22 @@ namespace Sharponi.Services
 {
     public class HiddenCommandHandler
     {
-        private readonly IServiceProvider provider;
+        private readonly DiscordSocketClient discord;
         private IList<IHiddenCommand> commands;
 
-        public HiddenCommandHandler(IServiceProvider provider)
+        public HiddenCommandHandler(DiscordSocketClient discord)
         {
-            this.provider = provider;
+            this.discord = discord;
         }
+        
 
-        public async Task ExecuteAsync(SocketUserMessage msg, SocketCommandContext context)
+        public async Task ExecuteAsync(SocketUserMessage msg, SocketCommandContext context, IServiceProvider provider)
         {
             foreach (IHiddenCommand hiddenCommand in commands)
             {
-                if (hiddenCommand.FulfillsCondition(msg, context))
+                if (hiddenCommand.FulfillsCondition(msg, context, provider))
                 {
-                    await hiddenCommand.Execute(msg, context).ConfigureAwait(false);
+                    await hiddenCommand.Execute(msg, context, provider).ConfigureAwait(false);
                 }
             }
         }
@@ -43,5 +45,6 @@ namespace Sharponi.Services
                                     .Select(type => (IHiddenCommand)Activator.CreateInstance(type))
                                     .ToList();
         }
+
     }
 }

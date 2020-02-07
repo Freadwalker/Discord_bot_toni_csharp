@@ -9,13 +9,13 @@ using Sharponi.Services;
 
 namespace Sharponi
 {
-    class Program
+    internal class Program
     {
         // setup our fields we assign later
-        private readonly IConfiguration _config;
-        private DiscordSocketClient _client;
+        private readonly IConfiguration config;
+        private DiscordSocketClient client;
 
-        static void Main(string[] args)
+        private static void Main()
         {
             new Program().MainAsync().GetAwaiter().GetResult();
         }
@@ -23,12 +23,12 @@ namespace Sharponi
         public Program()
         {
             // create the configuration
-            var _builder = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(path: "config.json");
+                .AddJsonFile("config.json");
 
             // build the configuration and assign to _config          
-            _config = _builder.Build();
+            config = builder.Build();
         }
 
         public async Task MainAsync()
@@ -38,8 +38,7 @@ namespace Sharponi
             {
                 // get the client and assign to client 
                 // you get the services via GetRequiredService<T>
-                var client = services.GetRequiredService<DiscordSocketClient>();
-                _client = client;
+                client = services.GetRequiredService<DiscordSocketClient>();
 
                 // setup logging and the ready event
                 client.Log += LogAsync;
@@ -47,7 +46,7 @@ namespace Sharponi
                 services.GetRequiredService<CommandService>().Log += LogAsync;
 
                 // this is where we get the Token value from the configuration file, and start the bot
-                await client.LoginAsync(TokenType.Bot, _config["bot_token"]);
+                await client.LoginAsync(TokenType.Bot, config["bot_token"]);
                 await client.StartAsync();
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
@@ -66,7 +65,7 @@ namespace Sharponi
 
         private Task ReadyAsync()
         {
-            Console.WriteLine($"Connected as -> [{_client.CurrentUser}] :)");
+            Console.WriteLine($"Connected as -> [{client.CurrentUser}] :)");
             return Task.CompletedTask;
         }
 
@@ -78,7 +77,7 @@ namespace Sharponi
             // using csharpi.Services;
             // the config we build is also added, which comes in handy for setting the command prefix!
             return new ServiceCollection()
-                .AddSingleton(_config).AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
+                .AddSingleton(config).AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {                                       // Add discord to the collection
                     LogLevel = LogSeverity.Debug,     // Tell the logger to give Verbose amount of info
                     MessageCacheSize = 1000             // Cache 1,000 messages per channel
