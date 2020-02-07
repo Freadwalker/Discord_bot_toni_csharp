@@ -30,7 +30,7 @@ namespace Sharponi.Services
 
         public static LogLevel LogLevelFromConfiguration(IConfiguration config)
         {
-            switch (config[Constants.LogLevelKey].ToLower())
+            switch (config[Constants.LogLevelKey]?.ToLower())
             {
                 case "debug" : return LogLevel.Debug;
                 case "info" : return LogLevel.Information;
