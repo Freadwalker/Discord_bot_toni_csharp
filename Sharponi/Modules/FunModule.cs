@@ -174,6 +174,13 @@ namespace Sharponi.Modules
             }
         }
 
+        [Command("egal")]
+        [Summary("the wendler guy")]
+        public async Task Egal()
+        {
+            await ReplyAsync("https://tenor.com/view/egal-singing-ocean-sea-boat-ride-gif-16080257");
+        }
+
         private async Task SendTwoPartJoke(JObject fact)
         {
             if (fact["setup"] != null && fact["delivery"] != null)
