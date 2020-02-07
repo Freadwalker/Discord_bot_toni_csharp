@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace Sharponi.Services
 {
@@ -14,6 +15,7 @@ namespace Sharponi.Services
         private readonly HiddenCommandHandler hiddenCommandHandler;
         private readonly IConfiguration config;
         private readonly IServiceProvider provider;
+        private readonly ILogger<CommandHandler> logger;
 
         // DiscordSocketClient, CommandService, IConfigurationRoot, and IServiceProvider are injected automatically from the IServiceProvider
         public CommandHandler(
@@ -21,13 +23,15 @@ namespace Sharponi.Services
             CommandService commands,
             HiddenCommandHandler hiddenCommandHandler,
             IConfiguration config,
-            IServiceProvider provider)
+            IServiceProvider provider,
+            ILogger<CommandHandler> logger)
         {
             this.discord = discord;
             this.commands = commands;
             this.hiddenCommandHandler = hiddenCommandHandler;
             this.config = config;
             this.provider = provider;
+            this.logger = logger;
 
             this.discord.MessageReceived += OnMessageReceivedAsync;
         }
@@ -53,7 +57,7 @@ namespace Sharponi.Services
             try
             {
                 int argPos = 0; // Check if the message has a valid command prefix
-                if (msg.HasStringPrefix(config["prefix"], ref argPos) ||
+                if (msg.HasStringPrefix(config[Constants.PrefixKey], ref argPos) ||
                     msg.HasMentionPrefix(discord.CurrentUser, ref argPos))
                 {
                     var result = await commands.ExecuteAsync(context, argPos, provider); // Execute the command
@@ -73,7 +77,7 @@ namespace Sharponi.Services
             {
                 await context.Channel.SendMessageAsync(
                     "A bad Error occured, please contact the Support to check the logs!");
-                Console.WriteLine(e);
+                logger.LogError($"Error on msg: {msg}", e);
             }
         }
     }

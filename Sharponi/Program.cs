@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sharponi.Services;
@@ -14,6 +15,7 @@ namespace Sharponi
         // setup our fields we assign later
         private readonly IConfiguration config;
         private DiscordSocketClient client;
+        private ILogger logger;
 
         private static void Main()
         {
@@ -36,6 +38,7 @@ namespace Sharponi
             // call ConfigureServices to create the ServiceCollection/Provider for passing around the services
             using (var services = ConfigureServices())
             {
+                logger = services.GetService<ILogger<Program>>();
                 // get the client and assign to client 
                 // you get the services via GetRequiredService<T>
                 client = services.GetRequiredService<DiscordSocketClient>();
@@ -46,7 +49,7 @@ namespace Sharponi
                 services.GetRequiredService<CommandService>().Log += LogAsync;
 
                 // this is where we get the Token value from the configuration file, and start the bot
-                await client.LoginAsync(TokenType.Bot, config["bot_token"]);
+                await client.LoginAsync(TokenType.Bot, config[Constants.BotTokenKey]);
                 await client.StartAsync();
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
@@ -59,13 +62,15 @@ namespace Sharponi
 
         private Task LogAsync(LogMessage log)
         {
-            Console.WriteLine(log.ToString());
+            LogLevel logLevel = LoggingService.ConvertLogLevel(log.Severity);
+            logger?.Log(logLevel, log.Message, log.Exception);
             return Task.CompletedTask;
         }
 
+
         private Task ReadyAsync()
         {
-            Console.WriteLine($"Connected as -> [{client.CurrentUser}] :)");
+            logger?.LogInformation($"Connected as -> [{client.CurrentUser}] :)");
             return Task.CompletedTask;
         }
 
@@ -89,6 +94,9 @@ namespace Sharponi
                 }))
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<HiddenCommandHandler>()
+                .AddLogging(builder => builder.
+                                AddConsole())
+                .Configure<LoggerFilterOptions>(options => options.MinLevel = LoggingService.LogLevelFromConfiguration(config)) 
                 .BuildServiceProvider();
         }
     }

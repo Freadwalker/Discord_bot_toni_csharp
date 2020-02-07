@@ -1,9 +1,7 @@
-﻿using System;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Sharponi.Attributes;
 

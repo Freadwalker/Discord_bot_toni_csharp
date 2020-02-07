@@ -1,48 +1,44 @@
 ﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
 using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Sharponi.Services
 {
-    public class LoggingService
+    public static class LoggingService
     {
-        private readonly DiscordSocketClient discord;
-        private readonly CommandService commands;
-
-        private string logDirectory { get; }
-        private string logFile => Path.Combine(logDirectory, $"{DateTime.UtcNow.ToString("yyyy-MM-dd")}.txt");
-
-        // DiscordSocketClient and CommandService are injected automatically from the IServiceProvider
-        public LoggingService(DiscordSocketClient discord, CommandService commands)
+        public static LogLevel ConvertLogLevel(LogSeverity logSeverity)
         {
-            logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
-
-            this.discord = discord;
-            this.commands = commands;
-
-            this.discord.Log += OnLogAsync;
-            this.commands.Log += OnLogAsync;
+            switch (logSeverity)
+            {
+                case LogSeverity.Critical:
+                    return LogLevel.Critical;
+                case LogSeverity.Error:
+                    return LogLevel.Error;
+                case LogSeverity.Warning:
+                    return LogLevel.Warning;
+                case LogSeverity.Info:
+                    return LogLevel.Information;
+                case LogSeverity.Verbose:
+                    return LogLevel.Trace;
+                case LogSeverity.Debug:
+                    return LogLevel.Debug;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(logSeverity), logSeverity, null);
+            }
         }
 
-        private Task OnLogAsync(LogMessage msg)
+        public static LogLevel LogLevelFromConfiguration(IConfiguration config)
         {
-            if (!Directory.Exists(logDirectory))     // Create the log directory if it doesn't exist
+            switch (config[Constants.LogLevelKey].ToLower())
             {
-                Directory.CreateDirectory(logDirectory);
+                case "debug" : return LogLevel.Debug;
+                case "info" : return LogLevel.Information;
+                case "warning" : return LogLevel.Warning;
+                case "error" : return LogLevel.Error;
+                case "all" : return LogLevel.Trace;
+                default: return LogLevel.Warning;
             }
-
-            if (!File.Exists(logFile))               // Create today's log file if it doesn't exist
-            {
-                File.Create(logFile).Dispose();
-            }
-
-            string logText = $"{DateTime.UtcNow.ToString("hh:mm:ss")} [{msg.Severity}] {msg.Source}: {msg.Exception?.ToString() ?? msg.Message}";
-            File.AppendAllText(logFile, logText + "\n");     // Write the log text to a file
-
-            return Console.Out.WriteLineAsync(logText);       // Write the log text to the console
         }
     }
 }
