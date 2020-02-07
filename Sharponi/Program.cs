@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Discord;
-using Discord.Net;
 using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Sharponi.Services;
 
@@ -54,6 +52,7 @@ namespace Sharponi
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().Init();
+                services.GetRequiredService<HiddenCommandHandler>().Init();
 
                 await Task.Delay(-1);
             }
@@ -81,15 +80,16 @@ namespace Sharponi
             return new ServiceCollection()
                 .AddSingleton(_config).AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {                                       // Add discord to the collection
-                    LogLevel = LogSeverity.Verbose,     // Tell the logger to give Verbose amount of info
+                    LogLevel = LogSeverity.Debug,     // Tell the logger to give Verbose amount of info
                     MessageCacheSize = 1000             // Cache 1,000 messages per channel
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {                                       // Add the command service to the collection
-                    LogLevel = LogSeverity.Verbose,     // Tell the logger to give Verbose amount of info
+                    LogLevel = LogSeverity.Debug,     // Tell the logger to give Verbose amount of info
                     DefaultRunMode = RunMode.Async,     // Force all commands to run async by default
                 }))
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<HiddenCommandHandler>()
                 .BuildServiceProvider();
         }
     }

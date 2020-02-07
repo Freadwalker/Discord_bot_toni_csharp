@@ -15,7 +15,7 @@ namespace Sharponi.Modules
 
         [Command("multiply")]
         [Summary("Get the product of two numbers.")]
-        public async Task Say(int a, int b)
+        public async Task Multiply(int a, int b)
         {
             int product = a * b;
             await ReplyAsync($"The product of `{a} * {b}` is `{product}`.");
@@ -23,7 +23,7 @@ namespace Sharponi.Modules
 
         [Command("addmany")]
         [Summary("Get the sum of many numbers")]
-        public async Task Say(params int[] numbers)
+        public async Task Addmany(params int[] numbers)
         {
             int sum = numbers.Sum();
             await ReplyAsync($"The sum of `{string.Join(", ", numbers)}` is `{sum}`.");

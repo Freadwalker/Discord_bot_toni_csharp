@@ -1,11 +1,17 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Sharponi.Attributes;
 
 namespace Sharponi.Modules
 {
+    
+    [Name("Help")]
+    [Summary("Contains the Help commands")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _service;
@@ -18,6 +24,7 @@ namespace Sharponi.Modules
         }
 
         [Command("help")]
+        [Summary("Show the complete help.")]
         public async Task HelpAsync()
         {
             string prefix = _config["prefix"];
@@ -29,9 +36,19 @@ namespace Sharponi.Modules
 
             foreach (var module in _service.Modules)
             {
+                if(module.Attributes.Any(i => i is HiddenHelpAttribute))
+                {
+                    continue;
+                }
+
                 string description = null;
                 foreach (var cmd in module.Commands)
                 {
+                    if (cmd.Attributes.Any(i => i is HiddenHelpAttribute))
+                    {
+                        continue;
+                    }
+
                     var result = await cmd.CheckPreconditionsAsync(Context);
                     if (result.IsSuccess)
                         description += $"{prefix}{cmd.Aliases.First()}\n";

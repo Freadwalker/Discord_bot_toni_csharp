@@ -1,39 +1,27 @@
 using Discord;
-using Discord.Net;
-using Discord.WebSocket;
 using Discord.Commands;
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 
 namespace Sharponi.Modules
 {
-    // for commands to be available, and have the Context passed to them, we must inherit ModuleBase
-    public class FirstCommand : ModuleBase
+    [Name("Basic")]
+    [Summary("Talking to the bot")]
+    public class BasicResponseCommands : ModuleBase<SocketCommandContext>
     {
-        [Command("hello")]
-        public async Task HelloCommand()
+        [Command("say"), Alias("s")]
+        [Summary("Make the bot say something")]
+        public async Task Say([Remainder]string text)
         {
-            // initialize empty string builder for reply
-            var sb = new StringBuilder();
-
-            // get user info from the Context
-            var user = Context.User;
-            
-            // build out the reply
-            sb.AppendLine($"You are -> [{user.Username}]");
-            sb.AppendLine("I must now say, World!");
-
-            // send simple string reply
-            await ReplyAsync(sb.ToString());
+            await Context.Channel.DeleteMessageAsync(Context.Message);
+            await Context.Channel.SendMessageAsync(text);
         }
 
         [Command("8ball")]
         [Alias("ask")]
-        [RequireUserPermission(GuildPermission.KickMembers)]
+        [Summary("Ask me anything")]
         public async Task AskEightBall([Remainder]string args = null)
         {
             // I like using StringBuilder to build out the reply
